@@ -1,0 +1,54 @@
+<?php
+/**
+ * @file
+ *   mail_cleaner is an input filter that removes/hides extra text inserted by email clients when replying to an email.
+ *   Most useful when mail2web is used to support comment via email
+ *   This code was included in the D5 version of mail2web and this module simply moves it to it's own module
+ *  
+ */
+
+function mail_cleaner_help($path = 'admin/help#mail_cleaner', $arg) {
+  switch ($path) {
+    case 'admin/help#mail_cleaner':
+      return t('<p>The Mail Cleaner filter attempts to find and remove extra text inserted by email clients when replying to an email.  It is intended to be used with a mail2web</p>');
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_filter().
+ */
+function mail_cleaner_filter($op, $delta = 0, $format = -1, $text = '') {
+  switch ($op) {
+    case 'list':
+      return array(t('Mail Cleaner'));
+    case 'description':
+      return t('Removes or Hides extra text added by email clients on reply.');
+    case 'settings':
+      // This filter has no user settings.
+	  break;
+    case 'process':
+      return _html_to_markdown($text);
+    case 'no cache':
+	  return TRUE; // @TODO set this to False when done testing
+	  break;
+	default:
+      return $text;
+  }
+}
+
+/**
+ * Implementation of hook_filter_tips().
+ */
+function mail_cleaner_filter_tips($delta = 0, $format = -1, $long) {
+  if ($long) {
+    return t('Converts HTML to Markdown.  For example:<ul>
+      <li><em>Emphasis</em> = *Single asterisks*</li>
+      <li><strong>Strong</strong> = **Double asterisks** </li>
+      <li>Reference style links are footnoted</li>
+      </ul>For complete details on the Markdown syntax, see the <a href="http://daringfireball.net/projects/markdown/syntax">Markdown documentation</a> and <a href="http://michelf.com/projects/php-markdown/extra/">Markdown Extra documentation</a> for definition lists, footnotes, and more.');
+  }
+  else {
+    return t('You can use Reverse Markdown to convert HTML into <a href="@filter_tips">Markdown syntax</a>');
+  }
+}

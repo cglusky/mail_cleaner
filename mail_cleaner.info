@@ -1,0 +1,5 @@
+name = Mail Cleaner filter
+description = Cleans extra text inserted by mail clients when replying to an email.
+package = "Input filters"
+dependencies[] = filter
+core = 6.x
