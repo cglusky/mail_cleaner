@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- *   mail_cleaner is an input filter that removes/hides extra text inserted on reply by mail clients.
+ *   mail_cleaner is an input filter that removes/hides extra text mail clients add when replying to an email.
  *   Most useful when mail2web/mailhandler is used to support comment via email
  *   This code was included in the D5 version of mail2web and this module simply moves it to it's own module
  *   This is a simple/lightweight solution; for a more complete solution and more options consider something like customfilter or flexifilter
@@ -10,7 +10,7 @@
 function mail_cleaner_help($path = 'admin/help#mail_cleaner', $arg) {
   switch ($path) {
     case 'admin/help#mail_cleaner':
-      return t('<p>The Mail Cleaner filter attempts to filter the extra text inserted on reply by mail clients.  It is intended to be used with a mail2web/mailhandler</p>');
+      return t('<p>The Mail Cleaner filter removes or replaces the extra text mail clients add when replying to an email.  It is intended to be used with a mail2web/mailhandler</p>');
       break;
   }
 }
@@ -20,14 +20,14 @@ function mail_cleaner_help($path = 'admin/help#mail_cleaner', $arg) {
  */
 function mail_cleaner_filter_tips($delta = 0, $format = -1, $long) {
   if ($long) {
-    return t('Removes or replaces extra text inserted by mail clients when replying to an email.  
+    return t('Removes or replaces extra text mail clients add when replying to an email.  
       For example:<ul>
       <li>On Jan 17, 2009, at 9:19 AM, cglusky wrote:</li>
       <li>-----Original Message-----</li>
       </ul>');
   }
   else {
-    return t('You can use Mail Cleaner to remove or replace extra text inserted on reply by mail clients.');
+    return t('You can use Mail Cleaner to remove or replace extra text mail clients add when replying to an email.');
   }
 }
 
@@ -45,7 +45,7 @@ function mail_cleaner_filter($op, $delta = 0, $format = -1, $text = '') {
 	        case 0:
 	          return t('Replace the extra text mail clients add when replying to an email.  Extra text will be replaced with a "show quoted text" themable, collapsible fieldset.');
 	        case 1:
-	          return t('Remove the extra text mail clients add when replying to an email.  It is recommended to use this filter on messages outbound from you site, such as on the "Messaging" module filter.');
+	          return t('Remove the extra text mail clients add when replying to an email.  It is recommended to use this filter on messages outbound from you site, such as on the Messaging module filter.');
 	        default:
 	          return;
 	      }
@@ -82,7 +82,6 @@ function mail_cleaner_filter($op, $delta = 0, $format = -1, $text = '') {
 	      return $text;
 	  }
 	}
-
 
 /**
  * Helper function for cleaning the body of a message in mail2web

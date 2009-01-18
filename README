@@ -1,4 +1,6 @@
-***THIS CODE IS UNDER DEV SO IT MAY BE BROKEN AT ANY GIVEN TIME  Please check tags for usable code
+***THIS CODE IS UNDER DEV SO IT MAY BE BROKEN AT ANY GIVEN TIME
+
+***Not sure if I will continue to develop this code as it may be possible to handle with flexifilter and/or customfilter
 
 Unless otherwise specified everything in here is GPL
 
@@ -8,7 +10,7 @@ A Mail Cleaning Filter for Drupal 6 - Intended for use with mail2web/mailhandler
 
 This is a simple/lightweight solution; for a more complete solution and more options consider something like customfilter or flexifilter.
 
-Use Case - Remove or replace extra text added by mail clients when replying to an email.
+Use Case - Remove or replace extra text mail clients add when replying to an email.
 
 Example of extra text to be removed/hidden:
 
