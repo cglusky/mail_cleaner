@@ -1,78 +1,25 @@
-***THIS BRANCH IS UNDER DEV SO IT MAY BE BROKEN AT ANY GIVEN TIME  PLEASE USE MASTER TO TEST
+***THIS CODE IS UNDER DEV SO IT MAY BE BROKEN AT ANY GIVEN TIME  Please check tags for usable code
 
 Unless otherwise specified everything in here is GPL
 
-This is a work in progress
+This is a work in progress.  It is based largely on the message cleaning code from the D5 version of mail2web.
 
-A Reverse Markdown Filter for Drupal 6
+A Mail Cleaning Filter for Drupal 6 - Intended for use with mail2web/mailhandler
 
-Use Case - Enable Two-Way PLAIN TEXT email integration and support Markdown both inbound and outbound
+This is a simple/lightweight solution; for a more complete solution and more options consider something like customfilter or flexifilter.
+
+Use Case - Remove or replace extra text added by mail clients when replying to an email.
+
+Example of extra text to be removed/hidden:
+
+-"On Jan 17, 2009, at 9:19 AM, cglusky wrote: "
+-"-----Original Message-----"
 
 Two way email integration is possible with Drupal using
--  Mailhandler
--  Mail2Web
--  Messaging
--  Notification
--  Markdown filter
-
--  The Messaging module comes with two plain text filters, one of which uses Drupal core's
-   drupal_html_to_text http://api.drupal.org/api/function/drupal_html_to_text/6 which is a close
-   solution to what we are going to do here.  That function will be provide the framework for
-   this filter module.  It's very close - We just need to tweak it to provide Markdown syntax
-
--  Drupal has a Markdown Filter Module (used for incoming email in this case), but we need to be able to convert HTML
-   back to Markdown for outbound emails.  We will use some of it for more framework.  
-   http://drupal.org/project/markdown
-
--  This is largely to keep things consistent between input and output.  We have no guarantee about how the raw text
-   will show up, but if it's applied to outbound emails from a Drupal site we will assume HTML is in there.
-
--  Apply this filter to outbound emails in the Messaging Module or use it elsewhere if it helps.
-
-Due credit to all the great people who work in the Drupal Community as well as
-John Gruber at Daring Fireball  http://daringfireball.net/projects/markdown/
-for Markdown in the first place.
-
-Anything in here is not only GPL but COMPLETELY EXPERIMENTAL and could make your favorite computer stop working...
-
-AS IS, NO WARRANTY IMPLIED.  Use it at own risk and hopefully enjoy. 
-
-*********************
-Currently supported HTML tags
-
-<h1>Header 1</h1>
-<h2>Header 2</h2>
-<h3>Header 3</h3>
-<h4>Header 4</h4>
-
-<p>this is wrapped in paragraph tags</p>
-
-This is a break<br />This is text after break
-
-<a href="http://metanomy.org">This is a link</a>
-
-<i>This is italics</i>
-<em>This is emphasis</em>
-
-<b>This is bold</b>
-<strong>This is strong</strong>
-
-<ol>
-<li> This is ordered list 1</li>
-<li> This is ordered list 2</li>
-</ol>
-
-<ul>
-<li> This is unordered list 1</li>
-<li> This is unordered list 2</li>
-</ul>
-
-<blockquote>This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  This is a blockquote.  </blockquote>
-
-This is a definition list:
-<dl>
-  <dt>Coffee</dt>
-    <dd>black hot drink</dd>
-  <dt>Milk</dt>
-    <dd>white cold drink</dd>
-</dl>
+- Mailhandler
+- Mail2Web
+- Messaging
+- Notification
+- Markdown filter (opt)
+- Reverse Markdown filter (opt)
+- Mail Cleaner filter (opt)

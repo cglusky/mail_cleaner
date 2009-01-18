@@ -1,39 +1,17 @@
 <?php
 /**
  * @file
- *   mail_cleaner is an input filter that removes/hides extra text inserted by email clients when replying to an email.
- *   Most useful when mail2web is used to support comment via email
+ *   mail_cleaner is an input filter that removes/hides extra text inserted on reply by mail clients.
+ *   Most useful when mail2web/mailhandler is used to support comment via email
  *   This code was included in the D5 version of mail2web and this module simply moves it to it's own module
- *  
+ *   This is a simple/lightweight solution; for a more complete solution and more options consider something like customfilter or flexifilter
  */
 
 function mail_cleaner_help($path = 'admin/help#mail_cleaner', $arg) {
   switch ($path) {
     case 'admin/help#mail_cleaner':
-      return t('<p>The Mail Cleaner filter attempts to find and remove extra text inserted by email clients when replying to an email.  It is intended to be used with a mail2web</p>');
+      return t('<p>The Mail Cleaner filter attempts to filter the extra text inserted on reply by mail clients.  It is intended to be used with a mail2web/mailhandler</p>');
       break;
-  }
-}
-
-/**
- * Implementation of hook_filter().
- */
-function mail_cleaner_filter($op, $delta = 0, $format = -1, $text = '') {
-  switch ($op) {
-    case 'list':
-      return array(t('Mail Cleaner'));
-    case 'description':
-      return t('Removes or Hides extra text added by email clients on reply.');
-    case 'settings':
-      // This filter has no user settings.
-	  break;
-    case 'process':
-      return _html_to_markdown($text);
-    case 'no cache':
-	  return TRUE; // @TODO set this to False when done testing
-	  break;
-	default:
-      return $text;
   }
 }
 
@@ -42,13 +20,125 @@ function mail_cleaner_filter($op, $delta = 0, $format = -1, $text = '') {
  */
 function mail_cleaner_filter_tips($delta = 0, $format = -1, $long) {
   if ($long) {
-    return t('Converts HTML to Markdown.  For example:<ul>
-      <li><em>Emphasis</em> = *Single asterisks*</li>
-      <li><strong>Strong</strong> = **Double asterisks** </li>
-      <li>Reference style links are footnoted</li>
-      </ul>For complete details on the Markdown syntax, see the <a href="http://daringfireball.net/projects/markdown/syntax">Markdown documentation</a> and <a href="http://michelf.com/projects/php-markdown/extra/">Markdown Extra documentation</a> for definition lists, footnotes, and more.');
+    return t('Removes or replaces extra text inserted by mail clients when replying to an email.  
+      For example:<ul>
+      <li>On Jan 17, 2009, at 9:19 AM, cglusky wrote:</li>
+      <li>-----Original Message-----</li>
+      </ul>');
   }
   else {
-    return t('You can use Reverse Markdown to convert HTML into <a href="@filter_tips">Markdown syntax</a>');
+    return t('You can use Mail Cleaner to remove or replace extra text inserted on reply by mail clients.');
   }
+}
+
+/**
+ * Implementation of hook_filter().
+ */
+function mail_cleaner_filter($op, $delta = 0, $format = -1, $text = '') {
+  	switch($op) {
+	    case 'list':
+	      return array(
+	        0 => t('Mail Cleaner QUOTED extra text filter'),
+	        1 => t('Mail Cleaner REMOVE extra text filter'));
+	    case 'description':
+	      switch ($delta) {
+	        case 0:
+	          return t('Replace the extra text mail clients add when replying to an email.  Extra text will be replaced with a "show quoted text" themable, collapsible fieldset.');
+	        case 1:
+	          return t('Remove the extra text mail clients add when replying to an email.  It is recommended to use this filter on messages outbound from you site, such as on the "Messaging" module filter.');
+	        default:
+	          return;
+	      }
+	    case 'settings':
+	      break;
+	    case 'no cache':
+	      switch ($delta) {
+	        case 0:
+	          return FALSE;
+	        case 1:
+	          return TRUE;
+	        default:
+	          return FALSE;
+	      }
+	    case 'prepare':
+	      switch ($delta) {
+	        case 0:
+	          return $text;
+	        case 1:
+	          return $text;
+	        default:
+	          return $text;
+	      }
+	    case 'process':
+	      switch ($delta) {
+	        case 0:
+	          return _mail_cleaner_clean($text);
+	        case 1:
+	          return _mail_cleaner_clean($text, FALSE);
+	        default:
+	          return $text;
+	      }
+	    case 'default':
+	      return $text;
+	  }
+	}
+
+
+/**
+ * Helper function for cleaning the body of a message in mail2web
+ * 
+ * Mail clients add extra text to the email message like: 
+ * 
+ * "On Mon, 9/22/08, John Doe <email-address> wrote:"
+ * 
+ * @param string $text
+ *   The body of the email
+ * @param string $replace
+ *   True or false.  Whether to do text replacement, or discard text.
+ * @return string $text
+ *   The cleaned body of the email.
+ */
+function _mail_cleaner_clean($text, $replace = TRUE) {
+  // The most common email client extra text 
+  // Looks like:  Anything... wrote:  (this is not perfect, but common.)
+  // If someone writes "The other day you wrote: (line break)"
+  // Then the message will get stripped.
+  $search = preg_match('/On\s(.|[\r\n])*wrote:[<br.*>\n\r]/', $text, $matches, PREG_OFFSET_CAPTURE);
+  
+  if (empty($matches)) {
+    // For MS Outlook
+    $search = preg_match("/-----Original Message-----/", $text, $matches, PREG_OFFSET_CAPTURE);
+  } 
+  // Assemble the final text.
+  if (!empty($matches)) {
+    // Find what was removed, get the offset in the original, substring the original based on the offset.
+    $removed = $matches[0][0];
+    $offset = $matches[0][1];
+    $text = substr($text, 0, $offset);
+    // If replace flag is set to true, to text replacement, otherwise, just return the stripped text.
+    return theme('mail_cleaner_clean', $text, $removed, $offset, $replace);  
+  }
+  else {
+    return $text;
+  }
+}
+
+function theme_mail_cleaner_clean($text, $removed, $offset, $replace) {
+  if ($replace === FALSE) {
+    return str_replace('- Show quoted text -', '', $text);
+  }
+  // Put the removed text in a collapsible fieldset.
+  $array = array(
+    '#type' => 'fieldset',
+    '#title' => t('- Show quoted text -'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#attributes' => array('class' => 'quoted-text'),
+  );
+  $array['text_contents'] = array(
+    '#type' => 'markup',
+    '#value' => '<div>' . $removed . '</div>',
+  );
+  
+  return $text . drupal_render($array);
 }
